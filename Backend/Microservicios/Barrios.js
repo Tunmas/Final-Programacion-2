@@ -8,7 +8,8 @@ const app = express();
 const port = process.env.PORT1 || 3001;
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
 });
 
 app.use(express.json());
@@ -25,7 +26,7 @@ pool.query('SELECT NOW()', (err, res) => {
 // Ruta GET para obtener barrios
 app.get('/api/barrios', async (req, res) => {
     try {
-        const result = await pool.query('SELECT nombrebarrio FROM barrio');
+        const result = await pool.query('SELECT * FROM barrio');
         res.json(result.rows);
     } catch (err) {
         console.error(err);
