@@ -25,6 +25,33 @@ $(document).ready(function () {
         pageLength: 10
     });
 
+    async function obtenerEstadoClientePorNombre(nombreCompleto) {
+        try {
+            const [apellido, nombre] = nombreCompleto.split(' ');
+            
+            if (!nombre || !apellido) {
+                throw new Error('Nombre completo debe contener nombre y apellido');
+            }
+            
+            console.log('Nombre:', nombre);
+            console.log('Apellido:', apellido);
+    
+            const response = await fetch(`http://localhost:3003/api/cliente?nombre=${encodeURIComponent(nombre)}&apellido=${encodeURIComponent(apellido)}`);
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const cliente = await response.json();
+            return cliente.activo;
+        } catch (error) {
+            console.error('Error al obtener el estado del cliente:', error);
+            return null;
+        }
+    }
+    
+    
+    
     async function cargarPedidos() {
         try {
             const response = await fetch('http://localhost:3003/api/pedidos');
@@ -34,23 +61,27 @@ $(document).ready(function () {
             const pedidos = await response.json();
             const tabla = $('#pedidosTable').DataTable();
             tabla.clear();
-            pedidos.forEach(pedido => {
-                tabla.row.add([
-                    pedido.id,
-                    pedido.fecha,
-                    pedido.cliente,
-                    pedido.articulo,
-                    pedido.precio,
-                    pedido.cantidad,
-                    pedido.total,
-                    pedido.total
-                ]).draw();
-            });
+    
+            for (const pedido of pedidos) {
+                const estadoCliente = await obtenerEstadoClientePorNombre(pedido.cliente);
+        
+                if (estadoCliente === true) {
+                    tabla.row.add([
+                        pedido.id,
+                        pedido.fecha,
+                        pedido.cliente,
+                        pedido.articulo,
+                        pedido.precio,
+                        pedido.cantidad,
+                        pedido.total,
+                        `<button class="btn btn-sm btn-primary cambiar-cantidad">Modificar cantidad</button>`
+                    ]).draw();
+                }
+            }
         } catch (error) {
             console.error('Error al cargar los pedidos:', error);
         }
     }
-    
     // Llamar a la función para cargar los pedidos al iniciar
     cargarPedidos();
     
@@ -65,8 +96,8 @@ $(document).ready(function () {
                 success: function (data) {
                     response($.map(data, function (item) {
                         return {
-                            label: item.nombre + " " + item.apellido,
-                            value: item.nombre + " " + item.apellido
+                            label: item.apellido + " " + item.nombre,
+                            value: item.apellido + " " + item.nombre
                         };
                     }));
                 }
@@ -109,6 +140,45 @@ $(document).ready(function () {
         }
     });
 
+    $('#pedidosTable').on('click', '.cambiar-cantidad', function () {        
+        // Obtener la fila del pedido usando el id
+        const tabla = $('#pedidosTable').DataTable();
+        const fila = tabla.row($(this).parents('tr')).data();
+    
+        const id = fila[0];
+        const cantidad = fila[5];
+    
+        // Mostrar prompt para ingresar nueva cantidad
+        const nuevaCantidad = prompt('Ingrese la nueva cantidad:', cantidad);
+
+        console.log(id, cantidad, nuevaCantidad);
+    
+        // Verificar que se ha ingresado una nueva cantidad y que es un número válido
+        if (nuevaCantidad !== null && !isNaN(nuevaCantidad) && Number.isInteger(parseFloat(nuevaCantidad)) && parseInt(nuevaCantidad) >= 0) {
+            // Enviar la actualización al servidor
+            fetch(`http://localhost:3003/api/pedidos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cantidad: parseInt(nuevaCantidad, 10) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert('Pedido actualizado con éxito!');
+                cargarPedidos(); // Reinicializa la tabla para mostrar los nuevos datos
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error al actualizar el pedido');
+            });
+        } else {
+            alert('Cantidad inválida. Debe ser un número entero positivo.');
+        }
+    });
+    
+
     document.getElementById('pedidoForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
@@ -116,7 +186,7 @@ $(document).ready(function () {
         const articulo = document.getElementById('NombreArticulo').value;
         const precio = document.getElementById('Precio').value;        
         const cantidad = document.getElementById('Cantidad').value;
-        const fecha = new Date().toISOString().split('T')[0];
+        const fecha = new Date().toLocaleDateString('en-CA');
 
 
         console.log(fecha, cliente, articulo, precio, cantidad);
@@ -134,7 +204,7 @@ $(document).ready(function () {
             alert('Pedido agregado con éxito!');
 
             document.getElementById('pedidoForm').reset();
-            //cargarClientes(); // Reinicializa la tabla para mostrar los nuevos datos
+            cargarPedidos(); // Reinicializa la tabla para mostrar los nuevos datos
         })
 
         .catch((error) => {
