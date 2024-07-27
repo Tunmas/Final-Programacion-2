@@ -43,8 +43,8 @@ $(document).ready(function () {
                     cliente.id,
                     `${cliente.apellido} ${cliente.nombre}`,
                     cliente.barrio,
-                    cliente.activo ? 'Si' : 'No',
-                    '<button class="btn btn-sm btn-warning cambiar-estado">Cambiar Estado</button>'
+                    cliente.activo ? 'Activo' : 'Inactivo',
+                    `<button class="btn btn-sm ${cliente.activo ? 'btn-danger' : 'btn-success'}  cambiar-estado">${cliente.activo ? "Desactivar" : "Activar"}</button>`
                 ]).draw();
             });
         } catch (error) {
@@ -62,7 +62,7 @@ $(document).ready(function () {
         const id = fila[0];
         const estadoActual = fila[3];
 
-        const nuevoEstado = estadoActual === "Si" ? false : true;
+        const nuevoEstado = estadoActual === "Activo" ? false : true;
 
         console.log(id);
         console.log(estadoActual);
@@ -128,8 +128,6 @@ $(document).ready(function () {
             document.getElementById('clienteForm').reset();
             cargarClientes(); // Reinicializa la tabla para mostrar los nuevos datos
         })
-
-
 
         .catch((error) => {
             console.error('Error:', error);

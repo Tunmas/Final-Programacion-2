@@ -33,6 +33,20 @@ app.get('/api/clientes', async (req, res) => {
     }
 });
 
+app.get('/api/clientes2', async (req, res) => {
+    try {
+        const searchTerm = req.query.term || ''; // Obtenemos el término de búsqueda del query string
+        const result = await pool.query(
+            'SELECT nombre, apellido FROM clientes WHERE nombre ILIKE $1 OR apellido ILIKE $1',
+            [`%${searchTerm}%`]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al obtener los datos');
+    }
+});
+
 app.put('/api/clientes/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10); // Asegúrate de convertir el id a un número entero
     const { activo } = req.body;
