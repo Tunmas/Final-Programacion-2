@@ -43,32 +43,32 @@ $(document).ready(function () {
                     cliente.id,
                     `${cliente.apellido} ${cliente.nombre}`,
                     cliente.barrio,
-                    cliente.activo ? 'Activo' : 'Inactivo',
-                    `<button class="btn btn-sm ${cliente.activo ? 'btn-danger' : 'btn-success'}  cambiar-estado">${cliente.activo ? "Desactivar" : "Activar"}</button>`
+                    `<span class="${cliente.activo ? 'estado-activo' : 'estado-inactivo'}">${cliente.activo ? "Activo" : "Inactivo"}</span>`,
+                    `<button class="btn btn-sm ${cliente.activo ? 'btn-danger' : 'btn-success'} cambiar-estado">${cliente.activo ? "Desactivar" : "Activar"}</button>`
                 ]).draw();
             });
         } catch (error) {
             console.error('Error al cargar los clientes:', error);
         }
     }
+    
     // Llamar a la función para cargar los clientes al iniciar
     cargarClientes();
-
-    $('#clientesTable').on('click', '.cambiar-estado', function () {        
+    
+    $('#clientesTable').on('click', '.cambiar-estado', function () {
         // Obtener la fila del cliente usando el id
         const tabla = $('#clientesTable').DataTable();
         const fila = tabla.row($(this).parents('tr')).data();
-
+    
         const id = fila[0];
-        const estadoActual = fila[3];
-
-        const nuevoEstado = estadoActual === "Activo" ? false : true;
-
-        console.log(id);
-        console.log(estadoActual);
-        console.log(nuevoEstado);
+        const estadoActual = $(this).closest('tr').find('span').hasClass('estado-activo');
+        const nuevoEstado = !estadoActual;
+    
+        console.log('ID:', id);
+        console.log('Estado Actual:', estadoActual ? "Activo" : "Inactivo");
+        console.log('Nuevo Estado:', nuevoEstado ? "Activo" : "Inactivo");
         console.log('Datos de la Fila:', fila);
-
+    
         fetch(`http://localhost:3000/api/clientes/${id}`, {
             method: 'PUT',
             headers: {

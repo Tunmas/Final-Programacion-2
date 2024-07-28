@@ -1,0 +1,15 @@
+.estado-activo {
+    color: green;
+    border: 1px solid green;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.estado-inactivo {
+    color: red;
+    border: 1px solid red;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+}

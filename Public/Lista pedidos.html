@@ -42,7 +42,7 @@
         <div class="container" style="margin-top: 10px;">
             <div class="row">
                 <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                    <form id="pedidoForm" class="custom-border">
+                    <form id="pedidoForm" class="custom-border d-none">
                         <div class="row">
                             <div class="col-md-6">
                                 <input class="form-control mb-3" type="text" id="Cliente" name="Cliente" placeholder="Cliente *" required />
@@ -80,5 +80,14 @@
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="../js/Tablas pedidos.js"></script>
 </body>
+
+<script>
+    $(document).ready(function() {
+        // Mostrar el formulario al hacer clic en el botón "Agregar"
+        $('.btnAgregar').on('click', function() {
+            $('#pedidoForm').toggleClass('d-none');
+        });
+    });
+</script>
 
 </html>

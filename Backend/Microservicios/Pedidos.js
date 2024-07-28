@@ -103,12 +103,7 @@ app.get('/api/cliente', async (req, res) => {
     }
 });
 
-
-
-
-
-
-
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
+

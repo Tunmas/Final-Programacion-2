@@ -5,7 +5,8 @@ $(document).ready(function () {
         columnDefs: [
             { className: "centered", targets: [4] },
             { orderable: false, targets: [4] },
-            { width: "6%", targets: [0] }
+            { width: "1%", targets: [0] },
+            { width: "10%", targets: [4] }
         ],
         language: {
             lengthMenu: "Mostrar _MENU_ registros por página",
@@ -66,12 +67,13 @@ $(document).ready(function () {
                 const estadoCliente = await obtenerEstadoClientePorNombre(pedido.cliente);
         
                 if (estadoCliente === true) {
+                    const fechaForma = formatoFecha(pedido.fecha);
                     tabla.row.add([
                         pedido.id,
-                        pedido.fecha,
+                        fechaForma,
                         pedido.cliente,
                         pedido.articulo,
-                        pedido.precio,
+                        "$ "+ pedido.precio,
                         pedido.cantidad,
                         pedido.total,
                         `<button class="btn btn-sm btn-primary cambiar-cantidad">Modificar cantidad</button>`
@@ -84,6 +86,15 @@ $(document).ready(function () {
     }
     // Llamar a la función para cargar los pedidos al iniciar
     cargarPedidos();
+
+    function formatoFecha(fechaISO) {
+        const fecha = new Date(fechaISO);
+        const dia = String(fecha.getDate()).padStart(2,'0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const year = fecha.getFullYear();
+        console.log(`${dia}-${mes}-${year}`);
+        return `${dia}-${mes}-${year}`;
+    }
     
 
     // Autocompletar para el campo Cliente
